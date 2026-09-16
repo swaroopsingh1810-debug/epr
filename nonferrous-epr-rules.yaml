@@ -1,0 +1,400 @@
+# ============================================================================
+# NON-FERROUS METAL EPR — MACHINE-READABLE RULES CONFIGURATION
+#
+# Source of truth: Gazette of India, Extraordinary, Part II Sec 3(i), No. 395
+#   G.S.R. 438(E), dated 1 July 2025
+#   Hazardous and Other Wastes (Management and Transboundary Movement)
+#   Amendment Rules, 2025 — inserting Chapter VIII into the 2016 Rules
+#   Issued by MoEFCC. F.No. 12/84/2024-HSMD
+#
+# DESIGN PRINCIPLE: every value below carries a `src` pointing to the exact
+# rule or schedule it came from. No value enters this file from a blog,
+# a consultancy summary, or inference. If it is not in the gazette, it goes
+# under `cpcb_pending` — not into the tables.
+# ============================================================================
+
+meta:
+  config_version: "0.3.0"
+  extracted_on: "2026-09-16"
+  instrument: "G.S.R. 438(E)"
+  notified: "2025-07-01"
+  in_force_from: "2026-04-01"
+  chapter: "VIII"
+  parent_rules: "Hazardous and Other Wastes (Management and Transboundary Movement) Rules, 2016"
+  naming_warning: >
+    The draft was G.S.R. 499(E) dated 14 Aug 2024, titled "Second Amendment
+    Rules, 2024". The final instrument is titled "Amendment Rules, 2025".
+    Some law firm notes still cite the draft title. Same document.
+  metals_covered: [aluminium, copper, zinc, alloys_thereof]   # src: rule 44(k)
+
+# ----------------------------------------------------------------------------
+# SCHEDULE X — products in scope
+# src: Schedule X [rules 44(a),44(b),44(j),44(l),44(n),44(p),46(1)]
+# NOTE: items 9,10,12,14 carry an "other than automobile grade" carve-out.
+#       Schedule XII repeats several of these WITHOUT the carve-out.
+#       Treated as `automobile_grade_excluded` flag; see open_questions.OQ-04
+# ----------------------------------------------------------------------------
+schedule_x:
+  - id: 1
+    product: "Cans for beverages, aerosols and other such product"
+    automobile_grade_excluded: false
+  - id: 2
+    product: "Packaging foils for food, pharma and other such product"
+    automobile_grade_excluded: false
+  - id: 3
+    product: "Doors, windows, shutters"
+    automobile_grade_excluded: false
+  - id: 4
+    product: "Aluminium Composite Panel"
+    automobile_grade_excluded: false
+  - id: 5
+    product: "Aluminium partitioning, grills and other such product"
+    automobile_grade_excluded: false
+  - id: 6
+    product: "Utensils (cookware, canisters, storage and other such product)"
+    automobile_grade_excluded: false
+  - id: 7
+    product: "Furniture — tables, chairs, benches, ladders etc. including doorknobs, handles, hardware"
+    automobile_grade_excluded: false
+  - id: 8
+    product: "Roofing and ceiling sheets"
+    automobile_grade_excluded: false
+  - id: 9
+    product: "Motors, pumps, alternators and other such product"
+    automobile_grade_excluded: true
+  - id: 10
+    product: "Conductor cables and wires, strips"
+    automobile_grade_excluded: true
+  - id: 11
+    product: "Sanitary ware and fittings"
+    automobile_grade_excluded: false
+  - id: 12
+    product: "Electrical fittings"
+    automobile_grade_excluded: true
+  - id: 13
+    product: "Aluminium Alloy Bicycle"
+    automobile_grade_excluded: false
+  - id: 14
+    product: "Transformer"
+    automobile_grade_excluded: true
+  - id: 15
+    product: "Electric Generator sets"
+    automobile_grade_excluded: false
+  - id: 16
+    product: "Centralized air conditioning plants"
+    automobile_grade_excluded: false
+  - id: 17
+    product: "Apparel products e.g. belt buckles, zip, shoes"
+    automobile_grade_excluded: false
+  - id: 18
+    product: "Toys"
+    automobile_grade_excluded: false
+
+# ----------------------------------------------------------------------------
+# SCHEDULE XI — producer recycling targets
+# src: Schedule XI [rules 44(g),44(r),46(1)]
+#
+# FORMULA:  obligation(Y) = rate(Y) x quantity_placed_on_market(Y - X)
+#   where X = average life of the product, IN YEARS
+#   X IS NOT DEFINED IN THIS GAZETTE. See cpcb_pending.CP-01.
+#
+# This is the single most misreported fact about these rules. The base is a
+# LAGGED COHORT, not prior-year sales.
+# ----------------------------------------------------------------------------
+schedule_xi:
+  basis: "lagged_cohort"
+  lag_variable: "X"
+  lag_definition: "average life of the product, specified by CPCB"
+  lag_source: "NOT_IN_GAZETTE"
+  unit: "weight"
+  targets:
+    - fy: "2026-27"
+      rate_pct: 10
+    - fy: "2027-28"
+      rate_pct: 10
+    - fy: "2028-29"
+      rate_pct: 30      # <-- 3x step up
+    - fy: "2029-30"
+      rate_pct: 30
+    - fy: "2030-31"
+      rate_pct: 50
+    - fy: "2031-32"
+      rate_pct: 50
+    - fy: "2032-33_onwards"
+      rate_pct: 75
+  special_cases:
+    new_units:
+      # src: Schedule XI (viii)
+      rule: "Units established after 1 April 2026 — EPR obligation starts after two years, then follows the table above."
+      grace_years: 2
+    importers_of_used_goods_or_scrap:
+      # src: Schedule XI (ix)
+      rule: "EPR obligation in year Y = 100% of non-ferrous metals imported in year Y-1."
+      rate_pct: 100
+      lag_years: 1
+      basis: "prior_year"   # NOTE: different basis from producers — no average-life lag
+  review_clause: "Targets may be reviewed and increased after end of FY 2033-34."  # src: Schedule XI Note (1)
+
+# ----------------------------------------------------------------------------
+# SCHEDULE XII — products permitted for refurbishing
+# src: Schedule XII [rules 44(b),44(s),48(1),54(1),54(3)]
+# 11 of the 18 Schedule X products. Absent: cans, foils, utensils,
+# roofing/ceiling sheets, conductor cables/wires, apparel, toys.
+# ----------------------------------------------------------------------------
+schedule_xii:
+  refurbishable_products:
+    - "Doors, windows, shutters"
+    - "Aluminium Composite Panel"
+    - "Aluminium partitioning, grills and other such product"
+    - "Furniture — tables, chairs, benches, ladders etc. including doorknobs, handles, hardware"
+    - "Motors, pumps, alternators and other such product"
+    - "Sanitary ware and fittings"
+    - "Electrical fittings"
+    - "Aluminium Alloy Bicycle"
+    - "Transformer"
+    - "Electric Generator sets"
+    - "Centralized air conditioning plants"
+
+# ----------------------------------------------------------------------------
+# SCHEDULE XIII — minimum recycled content (binds MANUFACTURERS, not producers)
+# src: Schedule XIII [rule 51(3)]
+#
+# *** DRAFTING CONFLICT — SEE open_questions.OQ-01 ***
+# Rule 51(3):        assessed "in respect of the total weight of the new product"
+# Schedule XIII fn:  "with respect to the total quantity of the non-ferrous
+#                     metal used in manufacturing of that product"
+# These give materially different numbers. Do NOT hard-code a denominator.
+# ----------------------------------------------------------------------------
+schedule_xiii:
+  denominator: "AMBIGUOUS"          # must be user-selectable until resolved
+  denominator_options:
+    - "total_weight_of_new_product"        # per rule 51(3)
+    - "total_nonferrous_metal_in_product"  # per Schedule XIII footnote
+  sourcing_constraint: "Recycled material must be purchased from a registered recycler only."  # src: rule 51(6)
+  exemption: "CPCB may exempt case-by-case on statutory or technical grounds."  # src: rule 51(3) proviso
+  minimum_pct:
+    aluminium:
+      "2028-29": 5
+      "2029-30": 10
+      "2030-31": 10
+      "2031-32": 10
+    copper:
+      "2028-29": 5
+      "2029-30": 10
+      "2030-31": 15
+      "2031-32": 20
+    zinc:
+      "2028-29": 5
+      "2029-30": 10
+      "2030-31": 15
+      "2031-32": 25
+  post_2031_32: "NOT_SPECIFIED"     # table terminates at FY 2031-32. See OQ-02.
+
+# ----------------------------------------------------------------------------
+# REGISTRATION
+# ----------------------------------------------------------------------------
+registration:
+  registrable_roles: [manufacturer, producer, collection_agent, refurbisher, recycler]  # src: rule 45(1)
+  multi_role_rule: "An entity falling in more than one category must register separately under each."  # src: rule 45(4)
+  no_business_without_registration: true      # src: rule 45(5)
+  counterparty_rule: "Registered entities shall not deal with any entity in rule 45(1) unless that entity is also registered."  # src: rule 45(6)
+  false_info_penalty: "Registration may be revoked for up to 5 years, after hearing, plus environmental compensation under rule 60."  # src: rule 45(7)
+  fees: "CPCB may charge registration fees and annual maintenance charges, based on capacity handled."  # src: rule 45(8) — amounts NOT in gazette
+
+definitions:
+  bulk_consumer:
+    threshold_tonnes: 1000
+    text: "Any entity using at least 1,000 tonnes of Schedule-X products at any point in a financial year; includes e-retailer."  # src: rule 44(a)
+    note: "Bulk consumers are NOT in the rule 45(1) registration list, but carry duties under rule 56."
+  producer:
+    text: "Any person/entity — including dealer, retailer, e-retailer — who (i) manufactures and sells under own brand, or (ii) sells under own brand goods made by others, or (iii) sells imported goods under own or original brand, or (iv) imports used devices/products/scrap."  # src: rule 44(o)
+  manufacturer:
+    text: "Person/entity/company manufacturing any product, component or spare part of non-ferrous metals as specified in Schedule X."  # src: rule 44(j)
+  orphaned_products:
+    text: "Non-branded Schedule-X products, or those produced by a company that has closed operations."  # src: rule 44(l)
+    channelisation: "Municipalities/local bodies must ensure orphan-product scrap reaches a registered recycler."  # src: rule 58(2)(d)
+
+# ----------------------------------------------------------------------------
+# CERTIFICATE MECHANICS
+# ----------------------------------------------------------------------------
+certificates:
+  epr_certificate:
+    generated_for: "registered recycler"                      # src: rule 47(1)
+    formula: "Q_EPR = Qp x Cf"                                # src: rule 47(1)
+    formula_terms:
+      Qp: "quantity of the end product"
+      Cf: "conversion factor — quantity of input required per unit of output"
+    cf_source: "NOT_IN_GAZETTE — determined by CPCB based on technologies and other factors"
+    validity: "Two years from the END of the financial year in which generated; auto-extinguishes thereafter."  # src: rule 47(2)
+    denominations_kg: [100, 200, 500, 1000, 10000]            # src: rule 47(3)
+    unique_number_contains: [year_of_generation, end_product_code, recycler_code, unique_code, validity]
+  purchase_cap:
+    # src: rule 49(1)
+    formula: "current_year_liability + leftover_liability_of_preceding_years + 0.10 * current_year_liability"
+    headroom_pct: 10
+  fulfilment_cadence:
+    english_text: "half-yearly"     # src: rule 49(2) English
+    hindi_text: "quarterly (तिमाही)"   # src: rule 49(2) Hindi — CONFIRMED DISCREPANCY, see OQ-03
+    status: "CONFLICT_CONFIRMED"
+  adjustment_order: "FIFO — priority in adjustment given to earlier liability; adjusted certificate auto-extinguished and cancelled."  # src: rule 49(3)
+  cross_verification: "Producer and recycler figures cross-verified on portal; on any difference the LOWER figure counts toward fulfilment."  # src: rule 46(4)
+  audit: "Certificates purchased by producer are subject to audit by CPCB or authorised agency."  # src: rule 46(5)
+  price_band:
+    # src: rule 49(9)-(10)
+    ceiling: "100% of the environmental compensation rate for non-fulfilment under rule 60"
+    floor: "30% of the environmental compensation rate for non-fulfilment under rule 60"
+    ec_rate_source: "NOT_IN_GAZETTE"
+  refurbishing_certificate:
+    effect: "Defers producer's EPR target for the corresponding quantity, for a duration determined by CPCB."  # src: rule 48(2), 49(4)
+    reinstatement_pct: 75    # src: rule 48(3) — only 75% of deferred quantity is added back
+    deferral_duration: "NOT_IN_GAZETTE"
+    modelling_note: >
+      This creates a multi-year liability schedule with a 25% permanent
+      write-off on the deferred tranche. It cannot be represented as a single
+      annual number. Model as a dated liability ledger.
+
+# ----------------------------------------------------------------------------
+# ADJUSTMENTS, SHORTFALL AND PENALTIES
+# ----------------------------------------------------------------------------
+adjustments:
+  operational_loss_factor:
+    text: "Producer's EPR target shall be reduced by a factor laid down by CPCB on account of operational loss, if any."  # src: rule 46(2)
+    value: "NOT_IN_GAZETTE"
+
+shortfall:
+  carry_forward_years: 3    # src: rule 60(4)
+  carry_forward_text: "Payment of EC does not absolve the producer of the target; unfulfilled target carries forward to the next year and so on, up to three years."
+  ec_refund_schedule:       # src: rule 60(5)
+    within_1_year_pct: 85
+    within_2_years_pct: 60
+    within_3_years_pct: 30
+    after_3_years_pct: 0
+  ec_rate: "NOT_IN_GAZETTE — per CPCB guidelines"   # src: rule 60(1)
+  hearing_required: true    # src: rule 60(2)
+  recycler_over_generation:
+    # src: rule 60(6)
+    threshold_pct: 5
+    text: "False information resulting in over-generation of EPR certificates above 5% of actual recycled scrap → temporary revocation of registration + non-refundable EC. Three or more violations → permanent revocation."
+  statutory_action: "Section 15, Environment (Protection) Act, 1986."   # src: rule 61
+
+# ----------------------------------------------------------------------------
+# RETURNS AND DEADLINES — applies to ALL registered roles
+# src: rules 51(4), 52(2), 53(2), 54(2), 55(5)
+# ----------------------------------------------------------------------------
+returns:
+  half_yearly_due: "31 October of every year"
+  annual_due: "30 June following the financial year to which the return relates"
+  applies_to: [manufacturer, producer, collection_agent, refurbisher, recycler]
+  multi_office: "A manufacturer with multiple offices may file a single combined annual return."  # src: rule 51(5)
+  relaxation_power: "Central Government may relax any filing period by up to nine months."        # src: rule 50(4)
+
+portal:
+  established_by: "CPCB"
+  function: "Single-point data repository — registration, half-yearly and annual returns, EPR fulfilment, certificate transactions."  # src: rule 50(1)-(2)
+  deadline_to_be_functional: "Within six months from 1 April 2026"   # src: rule 50(3)
+  observed_status: >
+    VERIFIED 2026-09-16 by direct inspection of epr.cpcb.gov.in (Common EPR Portal).
+    The "About EPR" menu lists seven streams. Battery, E-Waste, Plastic, Tyre and
+    Used Oil are live. "Scrap of Non-Ferrous Metals" and "Construction & Demolition
+    Waste Management" are both marked COMING SOON. The non-ferrous module DOES NOT EXIST.
+  compliance_deadlock:
+    commencement: "2026-04-01"
+    days_accrued_at_observation: 168
+    rule_50_3_portal_deadline: "2026-10-01"
+    first_half_yearly_return_due: "2026-10-31"
+    effect: >
+      Rule 45(2) requires online registration on the portal; rule 45(5) bars business
+      without registration; rule 46(3) permits fulfilment only via certificates purchased
+      through the portal. With no module, every obligated entity is in technical breach
+      of 45(5) and has no lawful route to discharge an obligation that began accruing
+      2026-04-01. Rule 50(4) permits Central Government to relax filing periods by up to
+      nine months, but requires an order. No such order observed as at 2026-09-16.
+    bis_parallel: "Rule 59 gave BIS the same six-month deadline (2026-10-01) to revise standards."
+  all_activities_online: true   # src: rule 50(3)
+
+oversight:
+  steering_committee_chair: "Chairperson, CPCB"                # src: rule 63(1)(a)
+  member_convener: "In-charge, CPCB division dealing with non-ferrous metals"
+  powers: "Reviews and revises recycling targets; decides disputes; approves conversion factors and certificate denominations."  # src: rules 63(4)-(5), 47(4)
+  audit_power: "CPCB, itself or through a designated agency, shall audit all registered roles by inspection and periodic audit; audit fee may be charged."  # src: rule 62
+  bis_mandate: "BIS to revise standards within six months from commencement."  # src: rule 59
+
+# ============================================================================
+# CPCB-PENDING PARAMETERS
+# Seven values that the gazette delegates to CPCB. Until published, an
+# obligation can be BOUNDED but not COMPUTED. This list is the calculator's
+# core output, not a footnote.
+# ============================================================================
+cpcb_pending:
+  - id: CP-01
+    param: "Average life (X) per product"
+    src: "Schedule XI, Note (2)"
+    blocks: "The entire Schedule XI calculation. Without X there is no base year."
+    severity: BLOCKING
+  - id: CP-02
+    param: "Conversion factor (Cf) per end product"
+    src: "rule 47(1)"
+    blocks: "Certificate quantity a recycler can generate."
+    severity: BLOCKING
+  - id: CP-03
+    param: "Environmental compensation rate"
+    src: "rule 60(1)"
+    blocks: "Cost of non-compliance AND the certificate price band, which is defined as 30-100% of it."
+    severity: BLOCKING
+  - id: CP-04
+    param: "Operational loss reduction factor"
+    src: "rule 46(2)"
+    blocks: "Net obligation after allowance."
+    severity: HIGH
+  - id: CP-05
+    param: "Refurbishing deferral duration"
+    src: "rules 48(2), 49(4)"
+    blocks: "Timing of the 75% reinstatement."
+    severity: HIGH
+  - id: CP-06
+    param: "Registration fees and annual maintenance charges"
+    src: "rule 45(8)"
+    blocks: "Cost-of-compliance estimate."
+    severity: MEDIUM
+  - id: CP-07
+    param: "Return forms and SOPs"
+    src: "rule 57(1)(c)-(d)"
+    blocks: "Knowing which data fields must be captured all year."
+    severity: MEDIUM
+
+# ============================================================================
+# OPEN QUESTIONS — ambiguities in the instrument itself
+# ============================================================================
+open_questions:
+  - id: OQ-01
+    issue: "Recycled-content denominator conflict"
+    detail: "Rule 51(3) says 'total weight of the new product'. Schedule XIII footnote says 'total quantity of the non-ferrous metal used'. For a product 30% aluminium by weight these differ by >6x."
+    binds_from: "FY 2028-29"
+    status: UNRESOLVED
+  - id: OQ-02
+    issue: "Schedule XIII terminates at FY 2031-32"
+    detail: "No minimum recycled content specified for FY 2032-33 onwards, while Schedule XI continues indefinitely at 75%."
+    status: UNRESOLVED
+  - id: OQ-03
+    issue: "Fulfilment cadence — Hindi vs English"
+    detail: >
+      Rule 49(2) English reads "every half-yearly". The Hindi reads तिमाही
+      (quarterly). Corroborated: the SAME notification uses अर्धवार्षिक
+      (half-yearly) correctly in rules 51(4), 52(2), 53(2), 54(2) and 55(5)
+      for return deadlines. The drafter chose a different word in 49(2),
+      so this is a drafting divergence, not a transcription artefact.
+      Practical effect: 2 vs 4 mandatory certificate-purchase events per year.
+      Conservative position is to advise quarterly proportionate purchase.
+    status: CONFIRMED
+  - id: OQ-04
+    issue: "Automobile-grade carve-out inconsistency"
+    detail: "Schedule X excludes automobile grade for motors/pumps, cables/wires, electrical fittings and transformers. Schedule XII lists the same products for refurbishing WITHOUT the carve-out."
+    status: UNRESOLVED
+  - id: OQ-05
+    issue: "Importer basis differs from producer basis"
+    detail: "Schedule XI(ix) puts importers of used goods/scrap at 100% of Y-1 imports — prior-year basis, no average-life lag, and a 10x higher rate than producers face in FY 2026-27. An entity that both produces and imports runs two incompatible calculations."
+    status: NOTED
+  - id: OQ-06
+    issue: "Chapter numbering"
+    detail: "Gazette text inserts 'Chapter VIII' after Chapter VII. Some law firm notes cite it as Chapter VII. Gazette governs: Chapter VIII."
+    status: RESOLVED
