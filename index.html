@@ -86,7 +86,7 @@ ul{margin:0 0 12px;padding-left:20px}li{margin-bottom:5px}
   purchasing certificates through that portal. None of this is currently possible.
   <br><br>
   Rule 50(3) required the portal to be functional within six months of commencement &mdash;
-  <strong>1 October 2026, fifteen days away.</strong> The first half-yearly return falls due
+  <strong>1 October 2026<span id="dl"></span>.</strong> The first half-yearly return falls due
   <strong>31 October 2026</strong> under rules 51(4), 52(2), 53(2), 54(2) and 55(5).
   Rule 50(4) allows the Central Government to relax filing periods by up to nine months, but that
   requires an order. Absent one, obligation continues to accrue against no lawful discharge route.
@@ -401,6 +401,22 @@ $("reset").addEventListener("click",function(){
   $("xmin").value=5;$("xmax").value=15;$("product").value=0;
   prodHint();rebuild();
 });
+</script>
+
+<script>
+(function(){
+  var el=document.getElementById("dl"); if(!el) return;
+  var target=new Date(2026,9,1);           // 1 October 2026, local time
+  var now=new Date(); now.setHours(0,0,0,0);
+  var d=Math.round((target-now)/86400000);
+  var t;
+  if(d>1)       t=", "+d+" days away";
+  else if(d===1)t=", tomorrow";
+  else if(d===0)t=", today";
+  else if(d===-1)t=" \u2014 a deadline that passed yesterday";
+  else          t=" \u2014 a deadline that passed "+Math.abs(d)+" days ago";
+  el.textContent=t;
+})();
 </script>
 </body>
 </html>
